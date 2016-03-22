@@ -8,8 +8,16 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -53,8 +61,9 @@ public class Main_frame {
 
 	private Font font;
 	private int tabNo;
+	private boolean getShowConfig;
 
-	public Main_frame() {
+	public Main_frame() throws FileNotFoundException, IOException {
 		chooser = new JFileChooser();
 		dir = new File("D:/cs333-data");
 		if (!dir.exists()) { dir.mkdirs(); }
@@ -63,6 +72,8 @@ public class Main_frame {
 		fileRW = new FileHandler();
 		font = new Font("Verdana", Font.PLAIN, 12);
 		tabNo = 1;
+		getShowConfig = readConfig();  
+		new Tutor(getShowConfig);
 		init();
 	}
 
@@ -335,5 +346,29 @@ public class Main_frame {
 		public void actionPerformed(ActionEvent e) {
 			System.exit(0);
 		}
+	}
+	public boolean readConfig() throws IOException, FileNotFoundException{
+		File file = null,dir ;
+		String temp = "";
+		boolean out = true;
+		BufferedReader reader;
+		file = new File("D:/cs333-data/config.txt");
+		if (file.exists()){
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+			temp = reader.readLine().split(",")[1];
+			out = Boolean.parseBoolean(temp);
+		}else {
+			BufferedWriter bfWriter = new BufferedWriter(new FileWriter(file));
+			PrintWriter writer = new PrintWriter(file);
+			String data = "Show_tutorial_shortcut,true";
+			data = data.replaceAll("(?!\\r)\\n", "\r\n");
+			writer.write(data);
+			writer.flush();
+			bfWriter.close();
+			writer.close();
+		}
+		
+		
+		return out;
 	}
 }
