@@ -3,6 +3,9 @@ package view;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import java.awt.FlowLayout;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 
 public class tab {
 
@@ -38,6 +41,11 @@ public class tab {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		JComboBox comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"red", "blue", "green", "yellow", "black"}));
+		frame.getContentPane().add(comboBox);
 	}
 
 }

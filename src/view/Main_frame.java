@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,8 +20,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.security.Key;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -33,9 +37,12 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.sun.corba.se.spi.orbutil.fsm.Action;
 
 import controller.FileHandler;
 
@@ -51,8 +58,6 @@ public class Main_frame {
 	private JMenu menuFile, menuEdit, menuRun, menuPref;
 	private JMenuItem newMenu, openMenu, saveMenu, saveAsMenu, exitMenu, undoMenu, redoMenu, tokenMenu, compileMenu,
 			execMenu, helpMenu, aboutMenu, closeTabMenu;
-	private JFileChooser chooser;
-	private File dir;
 	private FileHandler fileRW;
 	private JTextArea showErrorView, symbolView;
 	private JCheckBox onOffAni;
@@ -64,11 +69,6 @@ public class Main_frame {
 	private boolean getShowConfig;
 
 	public Main_frame() throws FileNotFoundException, IOException {
-		chooser = new JFileChooser();
-		dir = new File("D:/cs333-data");
-		if (!dir.exists()) { dir.mkdirs(); }
-		chooser.setCurrentDirectory(dir);
-		chooser.setFileFilter(new FileNameExtensionFilter("kids files", "kids"));
 		fileRW = new FileHandler();
 		font = new Font("Verdana", Font.PLAIN, 12);
 		tabNo = 1;
@@ -110,18 +110,23 @@ public class Main_frame {
 		menuBar.add(menuPref);
 
 		newMenu = new JMenuItem("New file (tab) ..... Ctrl+t");
+		newMenu.setAccelerator(KeyStroke.getKeyStroke("control T"));
 		newMenu.addActionListener(new listenerNewTab());
 
 		openMenu = new JMenuItem("Open               ..... Ctrl+o");
+		openMenu.setAccelerator(KeyStroke.getKeyStroke("control O"));
 		openMenu.addActionListener(new listenerOpen());
 
 		saveMenu = new JMenuItem("Save                 ..... Ctrl+s");
+		saveMenu.setAccelerator(KeyStroke.getKeyStroke("control S"));
 		saveMenu.addActionListener(new listenerSave());
 
 		saveAsMenu = new JMenuItem("Save As              ..... Ctrl+s");
+		saveAsMenu.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
 		saveAsMenu.addActionListener(new listenerSaveAs());
 
 		closeTabMenu = new JMenuItem("Close tab");
+		closeTabMenu.setAccelerator(KeyStroke.getKeyStroke("control W"));
 		closeTabMenu.addActionListener(new listenerCloseTab());
 		
 		exitMenu = new JMenuItem("Exit");
@@ -156,6 +161,7 @@ public class Main_frame {
 
 		menuPanel = new JPanel();
 		menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+		menuPanel.setPreferredSize(new Dimension(100, 650));
 		frame.add(menuPanel, BorderLayout.WEST);
 
 		menuPanelTop = new JPanel();
@@ -167,9 +173,9 @@ public class Main_frame {
 		frame.add(textPanel, BorderLayout.CENTER);
 
 		errorPanel = new JPanel();
-		errorPanel.setPreferredSize(new Dimension(300, 150));
+		errorPanel.setPreferredSize(new Dimension(200, 650));
 		errorPanel.setLayout(new BorderLayout());
-		frame.add(errorPanel, BorderLayout.SOUTH);
+		frame.add(errorPanel, BorderLayout.EAST);
 
 		toolBar = new JToolBar();
 		toolBar.setLayout(new GridLayout(10, 1));
@@ -235,16 +241,44 @@ public class Main_frame {
 
 		rectBtt = new JButton("Rect Btt");
 		rectBtt.setIcon(new ImageIcon(rectIcon));
+		rectBtt.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				CustomTextArea cus = (CustomTextArea) tabPanel.getComponent(tabPanel.getSelectedIndex());
+				new RectFrame(cus);
+			}
+		});
 
 		loopBtt = new JButton("LoopBtt");
 		loopBtt.setIcon(new ImageIcon(loopIcon));
-
+		loopBtt.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				CustomTextArea cus = (CustomTextArea) tabPanel.getComponent(tabPanel.getSelectedIndex());
+				new loopFrame(cus);
+			}
+		});
+		
 		assignBtt = new JButton("AssignBtt");
 		assignBtt.setIcon(new ImageIcon(assignIcon));
+		assignBtt.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				CustomTextArea cus = (CustomTextArea) tabPanel.getComponent(tabPanel.getSelectedIndex());
+				new AssignFrame(cus);
+			}
+		});
 
 		lineBtt = new JButton("Line Btt");
 		lineBtt.setIcon(new ImageIcon(lineIcon));
-
+		lineBtt.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				CustomTextArea cus = (CustomTextArea) tabPanel.getComponent(tabPanel.getSelectedIndex());
+				new lineFrame(cus);
+			}
+		});
+		
 		toolBar.add(sizeBtt);
 		toolBar.add(moveButt);
 		toolBar.add(rectBtt);
@@ -291,7 +325,7 @@ public class Main_frame {
 		toolBarTop2.add(tokenBtt);
 		toolBarTop2.add(compileBtt);
 		toolBarTop2.add(execBtt);
-
+		
 	}
 
 	private class listenerNewTab implements ActionListener {
@@ -348,7 +382,7 @@ public class Main_frame {
 		}
 	}
 	public boolean readConfig() throws IOException, FileNotFoundException{
-		File file = null,dir ;
+		File file = null ;
 		String temp = "";
 		boolean out = true;
 		BufferedReader reader;

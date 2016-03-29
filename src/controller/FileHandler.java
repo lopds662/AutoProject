@@ -26,6 +26,10 @@ public class FileHandler {
 	
 	public File openFile(JFrame frame){
 		JFileChooser chooser = new JFileChooser();
+		dir = new File("D:/cs333-data");
+		if (!dir.exists()) { dir.mkdirs(); }
+		chooser.setCurrentDirectory(dir);
+		chooser.setFileFilter(new FileNameExtensionFilter("kids files", "kids"));
 		int returnVal = chooser.showOpenDialog(frame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			file = chooser.getSelectedFile();
