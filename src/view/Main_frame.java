@@ -2,10 +2,12 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -24,6 +26,7 @@ import java.security.Key;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -35,16 +38,20 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 import com.sun.corba.se.spi.orbutil.fsm.Action;
 
 import controller.FileHandler;
+import model.CustomScanner;
 
 public class Main_frame {
 
@@ -59,7 +66,8 @@ public class Main_frame {
 	private JMenuItem newMenu, openMenu, saveMenu, saveAsMenu, exitMenu, undoMenu, redoMenu, tokenMenu, compileMenu,
 			execMenu, helpMenu, aboutMenu, closeTabMenu;
 	private FileHandler fileRW;
-	private JTextArea showErrorView, symbolView;
+	private JTextArea showErrorView;
+	JPanel symbolView;
 	private JCheckBox onOffAni;
 	private Image sizeIcon = null, moveIcon = null, rectIcon = null, loopIcon = null, assignIcon = null,
 			lineIcon = null;
@@ -67,6 +75,8 @@ public class Main_frame {
 	private Font font;
 	private int tabNo;
 	private boolean getShowConfig;
+	private JTextArea outputTableView;
+	private JTable symbolTable;
 
 	public Main_frame() throws FileNotFoundException, IOException {
 		fileRW = new FileHandler();
@@ -86,13 +96,14 @@ public class Main_frame {
 
 		animationFrame = new JFrame("Animation frame");
 		animationFrame.setBounds(900, 100, 500, 500);
+		animationFrame.setLayout(new BorderLayout());
 		animationFrame.setVisible(true);
 		animationFrame.setDefaultCloseOperation(animationFrame.EXIT_ON_CLOSE);
 
 		aniPanelMain = new JPanel();
 		aniPanelMain.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 1, true), "Animation",
 				TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		animationFrame.add(aniPanelMain);
+		animationFrame.add(aniPanelMain, BorderLayout.CENTER);
 
 		menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -175,7 +186,8 @@ public class Main_frame {
 		errorPanel = new JPanel();
 		errorPanel.setPreferredSize(new Dimension(200, 650));
 		errorPanel.setLayout(new BorderLayout());
-		frame.add(errorPanel, BorderLayout.EAST);
+//		frame.add(errorPanel, BorderLayout.EAST);
+		animationFrame.add(errorPanel, BorderLayout.EAST);
 
 		toolBar = new JToolBar();
 		toolBar.setLayout(new GridLayout(10, 1));
@@ -198,14 +210,42 @@ public class Main_frame {
 
 		showErrorView = new JTextArea();
 		showErrorView.setEditable(false);
-		symbolView = new JTextArea();
-		symbolView.setEditable(false);
+		
+		symbolView = new JPanel();
+		symbolView.setLayout(new BorderLayout());
+//		symbolView.setEditable(false);
+		symbolTable = new JTable();
+		DefaultTableModel tableModel = new DefaultTableModel(0, 0);
+		String[] header = new String[] {"Token", "Type", "STR Value", "INT Value"};
+		tableModel.setColumnIdentifiers(header);
+		symbolTable.setModel(tableModel);
+		tableModel.addRow(new Object[] {"=====","====","=========","========="});
+		
+		
+//		(new DefaultTableModel(
+//				new Object[][] {
+//					{null, null, null, null},
+//					{null, null, null, null},
+//					{null, null, null, null},
+//					{null, null, null, null},
+//				},
+//				new String[] {
+//						"Token", "Type", "STR Value", "INT Value"
+//				}
+//			));
+
+		symbolTable.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		symbolView.add(symbolTable, BorderLayout.CENTER);
+		
+		outputTableView = new JTextArea();
+		outputTableView.setEditable(false);
 
 		tabError = new JTabbedPane(JTabbedPane.TOP);
 		errorPanel.add(tabError);
 
 		tabError.addTab("Show Error", showErrorView);
 		tabError.addTab("Symbol Table", symbolView);
+		tabError.addTab("Output Table", outputTableView);
 
 		// sizeBtt, moveButt, rectBtt, loopBtt, assignBtt, lineBtt;
 		try {
@@ -319,6 +359,7 @@ public class Main_frame {
 		toolBarTop1.add(onOffAni);
 
 		tokenBtt = new JButton("Tokenizer Btt");
+		tokenBtt.addActionListener(new listennerToken());
 		compileBtt = new JButton("Compiler Btt");
 		execBtt = new JButton("Execute Btt");
 
@@ -381,6 +422,15 @@ public class Main_frame {
 			System.exit(0);
 		}
 	}
+	private class listennerToken implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			CustomTextArea cusRead = (CustomTextArea) tabPanel.getComponent(tabPanel.getSelectedIndex());
+			CustomScanner sc = new CustomScanner(cusRead.textArea.getText());
+			JTextArea cusError = (JTextArea) tabError.getComponent(0);
+			cusError.setText(sc.toString());
+		}
+		
+	}
 	public boolean readConfig() throws IOException, FileNotFoundException{
 		File file = null ;
 		String temp = "";
@@ -401,8 +451,6 @@ public class Main_frame {
 			bfWriter.close();
 			writer.close();
 		}
-		
-		
 		return out;
 	}
 }
