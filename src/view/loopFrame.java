@@ -56,7 +56,7 @@ public class loopFrame extends JFrame {
 
 				System.out.println(x + " " + y);
 				custom.textArea.insert("for " + fiName.getText() + " = " + fiPointX.getText() + " to "
-				+ fiX.getText() + " by " + fiY.getText() + "\ndo\n\t\n\nend ;", custom.textArea.getCaretPosition());
+				+ fiX.getText() + " by " + fiY.getText() + " do\n\t\n\nend ;", custom.textArea.getCaretPosition());
 				dispose();
 			}
 		});
