@@ -11,9 +11,10 @@ public class CustomScanner {
 	public String[] initArr(String data){
 		this.data = data;
 		this.outData = this.data.replaceAll("(?m)%.*$","");
-		dataArr = this.data.split("\n");
+//		dataArr = this.data.split("\n");
+		dataArr = this.outData.split("\n");
 		for (int i =0; i<dataArr.length;i++){
-//			System.out.println(">>>>> "+dataArr[i]);
+			System.out.println(">>>>> "+dataArr[i]);
 		}
 		return dataArr;
 	}

@@ -26,15 +26,21 @@ public class CustomDriver {
 	private String pattern;
 	private ArrayList<String> outputTable = new ArrayList<String>();
 	private ArrayList<String> colorMap = new ArrayList<String>();
+	public ArrayList<String> errorLogs = new ArrayList<String>();
 	private String out = "";
 	private HashMap typeMap = new HashMap<String, String>();
+
 	public HashMap getTypeMap() {
 		return typeMap;
 	}
 
 	private String symbolDataToConcat = "";
 	private String fullData = "";
-	public CustomDriver(){
+//	private ErrorChecking er = new ErrorChecking();
+//	private ErrorChecker err = new ErrorChecker();
+	private CheckError checker = new CheckError();
+
+	public CustomDriver() {
 		typeMap.put("size", "s");
 		typeMap.put("move", "m");
 		typeMap.put("line", "l");
@@ -56,6 +62,7 @@ public class CustomDriver {
 		colorMap.add("black");
 		colorMap.add("pink");
 	}
+
 	public CustomDriver(String[] dataArr) {
 		this.dataArr = dataArr;
 		typeMap.put("size", "s");
@@ -95,10 +102,10 @@ public class CustomDriver {
 				str_v = " ";
 				int_v = " ";
 			}
-			if (colorMap.contains(token)){
+			if (colorMap.contains(token)) {
 				typee = "c";
 			}
-			
+
 			if (isInteger(token)) {
 				int_v = "" + token;
 				typee = "i";
@@ -111,7 +118,12 @@ public class CustomDriver {
 	public void matchPattern() {
 		fullData = "";
 		Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+		errorLogs.clear();
 		for (int i = 0; i < this.dataArr.length; i++) {
+			System.out.println("This is i from CustomDriver " + i + " got value " + this.dataArr[i]);
+			// if (er.MainCheck(this.dataArr[i], i)) {
+			// if (err.MainChecker(this.dataArr[i], i)){
+			checker.MainChecker(this.dataArr[i], i);
 			Matcher m = r.matcher(this.dataArr[i].toLowerCase());
 			if (m.find()) {
 				for (int j = 1; j <= m.groupCount(); j++) {
@@ -119,13 +131,17 @@ public class CustomDriver {
 					if (temp != null) {
 						if (!m.group(j).matches("\\s+")) {
 							System.out.println("Found value at [i=" + i + " j=" + j + "] is " + temp);
-							if (!temp.equals("end ;")){
+							if (!temp.equals("end ;")) {
 								outputTable.add(temp);
 							}
 						}
 					}
 				}
 			}
+		}
+		String[] t = checker.errorPharse.split("\n");
+		for (int i = 0; i<t.length;i++){
+			errorLogs.add(t[i]);			
 		}
 	}
 

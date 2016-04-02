@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -218,29 +219,9 @@ public class Main_frame {
 		
 		symbolView = new JPanel();
 		symbolView.setLayout(new BorderLayout());
-//		symbolView.setEditable(false);
-//		symbolTable = new JTable();
-//		DefaultTableModel tableModel = new DefaultTableModel(0, 0);
-//		String[] header = new String[] {"Token", "Type", "STR Value", "INT Value"};
-//		tableModel.setColumnIdentifiers(header);
-//		symbolTable.setModel(tableModel);
-//		tableModel.addRow(new Object[] {"Token", "Type", "STR Value", "INT Value"});
-//		tableModel.addRow(new Object[] {"=====","====","=========","========="});
-//		symbolTable.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-//		symbolView.add(symbolTable, BorderLayout.CENTER);
 		
 		outputTableView = new JPanel();
 		outputTableView.setLayout(new BorderLayout());;
-//		outputTable = new JTable();
-//		DefaultTableModel outTableModel = new DefaultTableModel(0, 0);
-//		String[] headerOutput = new String[] {"Type", "STR Value", "INT Value"};
-//		outTableModel.setColumnIdentifiers(headerOutput);
-//		outputTable.setModel(outTableModel);
-//		outTableModel.addRow(new Object[] {"Type", "STR Value", "INT Value"});
-//		outTableModel.addRow(new Object[] {"====","=========","========="});
-//		outputTable.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-//		outputTableView.add(outputTable, BorderLayout.CENTER);
-		
 
 		tabError = new JTabbedPane(JTabbedPane.TOP);
 		errorPanel.add(tabError);
@@ -434,6 +415,22 @@ public class Main_frame {
 			cusError.setText(sc.toString());
 			CustomDriver driver = new CustomDriver(sc.initArr(cusRead.textArea.getText()));
 			driver.matchPattern(); //300, 650
+			ArrayList<String> errorL = driver.errorLogs;
+			cusError.setText("");
+			ArrayList<String> alreadyPrintErr = new ArrayList<String>();
+			if (errorL.size() > 1){
+				int nError = errorL.size()-1;
+				cusError.setText("Error found "+nError+" Items.\n");
+				for (int i = 0; i<errorL.size(); i++){
+					String errText = errorL.get(i);
+					if (!alreadyPrintErr.contains(errText)){
+						cusError.append(errText + "\n");
+						alreadyPrintErr.add(errText);
+					}
+				}
+			}else {
+				cusError.setText("No Error.");
+			}
 			CustomTokenizer token = new CustomTokenizer(driver.initOutputData());
 			outputTable = token.initOutputTable();
 			symbolTable = token.initSymbolTable(); 
