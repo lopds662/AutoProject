@@ -37,6 +37,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -51,7 +52,9 @@ import javax.swing.table.DefaultTableModel;
 import com.sun.corba.se.spi.orbutil.fsm.Action;
 
 import controller.FileHandler;
+import model.CustomDriver;
 import model.CustomScanner;
+import model.CustomTokenizer;
 
 public class Main_frame {
 
@@ -75,8 +78,10 @@ public class Main_frame {
 	private Font font;
 	private int tabNo;
 	private boolean getShowConfig;
-	private JTextArea outputTableView;
+	private JPanel outputTableView;
 	private JTable symbolTable;
+	private JTable outputTable;
+	private DefaultTableModel outTableModel;
 
 	public Main_frame() throws FileNotFoundException, IOException {
 		fileRW = new FileHandler();
@@ -184,10 +189,10 @@ public class Main_frame {
 		frame.add(textPanel, BorderLayout.CENTER);
 
 		errorPanel = new JPanel();
-		errorPanel.setPreferredSize(new Dimension(200, 650));
+		errorPanel.setPreferredSize(new Dimension(300, 650));
 		errorPanel.setLayout(new BorderLayout());
 //		frame.add(errorPanel, BorderLayout.EAST);
-		animationFrame.add(errorPanel, BorderLayout.EAST);
+		animationFrame.add(errorPanel, BorderLayout.WEST);
 
 		toolBar = new JToolBar();
 		toolBar.setLayout(new GridLayout(10, 1));
@@ -214,31 +219,28 @@ public class Main_frame {
 		symbolView = new JPanel();
 		symbolView.setLayout(new BorderLayout());
 //		symbolView.setEditable(false);
-		symbolTable = new JTable();
-		DefaultTableModel tableModel = new DefaultTableModel(0, 0);
-		String[] header = new String[] {"Token", "Type", "STR Value", "INT Value"};
-		tableModel.setColumnIdentifiers(header);
-		symbolTable.setModel(tableModel);
-		tableModel.addRow(new Object[] {"=====","====","=========","========="});
+//		symbolTable = new JTable();
+//		DefaultTableModel tableModel = new DefaultTableModel(0, 0);
+//		String[] header = new String[] {"Token", "Type", "STR Value", "INT Value"};
+//		tableModel.setColumnIdentifiers(header);
+//		symbolTable.setModel(tableModel);
+//		tableModel.addRow(new Object[] {"Token", "Type", "STR Value", "INT Value"});
+//		tableModel.addRow(new Object[] {"=====","====","=========","========="});
+//		symbolTable.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+//		symbolView.add(symbolTable, BorderLayout.CENTER);
 		
+		outputTableView = new JPanel();
+		outputTableView.setLayout(new BorderLayout());;
+//		outputTable = new JTable();
+//		DefaultTableModel outTableModel = new DefaultTableModel(0, 0);
+//		String[] headerOutput = new String[] {"Type", "STR Value", "INT Value"};
+//		outTableModel.setColumnIdentifiers(headerOutput);
+//		outputTable.setModel(outTableModel);
+//		outTableModel.addRow(new Object[] {"Type", "STR Value", "INT Value"});
+//		outTableModel.addRow(new Object[] {"====","=========","========="});
+//		outputTable.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+//		outputTableView.add(outputTable, BorderLayout.CENTER);
 		
-//		(new DefaultTableModel(
-//				new Object[][] {
-//					{null, null, null, null},
-//					{null, null, null, null},
-//					{null, null, null, null},
-//					{null, null, null, null},
-//				},
-//				new String[] {
-//						"Token", "Type", "STR Value", "INT Value"
-//				}
-//			));
-
-		symbolTable.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		symbolView.add(symbolTable, BorderLayout.CENTER);
-		
-		outputTableView = new JTextArea();
-		outputTableView.setEditable(false);
 
 		tabError = new JTabbedPane(JTabbedPane.TOP);
 		errorPanel.add(tabError);
@@ -425,9 +427,19 @@ public class Main_frame {
 	private class listennerToken implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			CustomTextArea cusRead = (CustomTextArea) tabPanel.getComponent(tabPanel.getSelectedIndex());
-			CustomScanner sc = new CustomScanner(cusRead.textArea.getText());
+			CustomScanner sc = new CustomScanner();
 			JTextArea cusError = (JTextArea) tabError.getComponent(0);
+			JPanel symPanel =  (JPanel) tabError.getComponent(1);
+			JPanel outputPanel =  (JPanel) tabError.getComponent(2);
 			cusError.setText(sc.toString());
+			CustomDriver driver = new CustomDriver(sc.initArr(cusRead.textArea.getText()));
+			driver.matchPattern(); //300, 650
+			CustomTokenizer token = new CustomTokenizer(driver.initOutputData());
+			outputTable = token.initOutputTable();
+			symbolTable = token.initSymbolTable(); 
+			symPanel.add(symbolTable, BorderLayout.CENTER);
+			outputPanel.add(outputTable, BorderLayout.CENTER);
+	
 		}
 		
 	}
